@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 
 st.set_page_config(
-    "Just a Christmas tree", page_icon="🎄", initial_sidebar_state="collapsed"
+    page_title="漂流瓶 Bottle Post", page_icon="📜", initial_sidebar_state="collapsed"
 )
 
 if "auth" not in st.session_state:

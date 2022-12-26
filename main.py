@@ -201,5 +201,3 @@ with fetch_page:
             ):
                 vote_post(text, comment, is_up)
     st.button(TRANSLATIONS[st.session_state["lang"]]["refresh"])
-
-st.dataframe(load_data_no_cache(), use_container_width=True)
