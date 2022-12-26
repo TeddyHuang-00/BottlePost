@@ -21,6 +21,7 @@ TRANSLATIONS = {
         "upvote": "Is this bottle good?",
         "throw_back": "Throw it back",
         "refresh": "Try another one",
+        "comments": "Some comments:",
     },
     "zh": {
         "lang_opt": "语言选项",
@@ -39,6 +40,7 @@ TRANSLATIONS = {
         "upvote": "这个漂流瓶如何？",
         "throw_back": "扔回海里",
         "refresh": "换一个",
+        "comments": "有人留言说：",
     },
 }
 DATA_FILE = "data/bottles.csv"
@@ -124,8 +126,8 @@ def vote_post(text: str, comment: str, up: bool):
         ).strftime(TIME_FORMAT)
     else:
         df.loc[df["text"] == text, "down"] += 1
-    if comment:
-        df.loc[df["text"] == text, "comments"] += [[comment]]
+    if comment and comment not in df.loc[df["text"] == text, "comments"].values[0]:
+        df.loc[df["text"] == text, "comments"].values[0].append(comment)
     # Only calculate scores when votes change
     filter_post(df).to_csv(DATA_FILE, index=False)
 
@@ -137,8 +139,7 @@ def filter_post(df: pd.DataFrame) -> pd.DataFrame:
     return df.loc[scores > st.secrets["options"]["min_score"]]
 
 
-def sample_post(ori: pd.DataFrame) -> tuple[str, bool]:
-    df = ori.copy()
+def sample_post(df: pd.DataFrame) -> tuple[str, bool]:
     if not len(df):
         return TRANSLATIONS[st.session_state["lang"]]["not_found"], False
     scores = (df["up"] + 1) / (df["up"] + df["down"] + 2)
@@ -173,7 +174,7 @@ with post_page:
 
 with fetch_page:
     with st.form("vote", clear_on_submit=True):
-        df = load_data()
+        df = load_data().copy()
         text, found = sample_post(df)
         if not found:
             st.write(TRANSLATIONS[st.session_state["lang"]]["not_found"])
@@ -184,6 +185,16 @@ with fetch_page:
             st.write("---")
             st.write(text)
             st.write("---")
+            comments = df[df["text"] == text]["comments"].values[0]
+            if comments is not None:
+                if len(comments):
+                    st.write(
+                        "##### " + TRANSLATIONS[st.session_state["lang"]]["comments"]
+                    )
+                    st.write("---")
+                    for comment in comments:
+                        st.write(comment)
+                        st.write("---")
             comment = st.text_area(
                 TRANSLATIONS[st.session_state["lang"]]["leave_comment"],
                 max_chars=st.secrets["options"]["max_comment_chars"],
