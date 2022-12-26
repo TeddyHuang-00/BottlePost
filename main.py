@@ -174,7 +174,7 @@ with post_page:
 
 with fetch_page:
     with st.form("vote", clear_on_submit=True):
-        df = load_data().copy()
+        df = load_data_no_cache()
         text, found = sample_post(df)
         if not found:
             st.write(TRANSLATIONS[st.session_state["lang"]]["not_found"])
