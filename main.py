@@ -170,7 +170,7 @@ with post_page:
             st.form_submit_button(TRANSLATIONS[st.session_state["lang"]]["send"])
             and text
         ):
-            add_post(text)
+            add_post(text.strip())
 
 with fetch_page:
     with st.form("vote", clear_on_submit=True):
@@ -210,5 +210,5 @@ with fetch_page:
             if st.form_submit_button(
                 TRANSLATIONS[st.session_state["lang"]]["throw_back"]
             ):
-                vote_post(text, comment, is_up)
+                vote_post(text, comment.strip(), is_up)
     st.button(TRANSLATIONS[st.session_state["lang"]]["refresh"])
